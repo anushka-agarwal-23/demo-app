@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-app-deployment-master
+  namespace: kubernetes-cluster-anushkaagarwal
+  labels:
+    app: java-app-master
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: java-app-master
+  template:
+    metadata:
+      labels:
+        app: java-app-master
+    spec:
+      containers:
+        - name: java-app-master
+		  envFrom:
+            - configMapRef:
+                name: app-config
+          image: anushkaagarwal/master:latest
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: java-app-master
+  namespace: kubernetes-cluster-anushkaagarwal
+spec:
+  type: LoadBalancer
+  selector:
+    app: java-app-master
+  ports:
+  - port: 8080
+    protocol: TCP
+    nodePort: 30157
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: java-master-autoscale
+  namespace: kubernetes-cluster-anushkaagarwal
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: java-app-deployment-master
+  minReplicas: 1
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 1

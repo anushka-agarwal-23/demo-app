@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: java-app-master
-	  envFrom:
+          envFrom:
             - configMapRef:
                 name: app-settings
           image: anushkaagarwal/master:latest
